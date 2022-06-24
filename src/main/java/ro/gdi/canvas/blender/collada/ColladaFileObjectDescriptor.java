@@ -8,6 +8,12 @@ package ro.gdi.canvas.blender.collada;
 
 public class ColladaFileObjectDescriptor {
 
+    public ColladaFileObjectDescriptor(final String fileName, final String objectName)
+    {
+        this.fileName = fileName;
+        this.objectName = objectName;
+    }
+
     /**
      * fileName the .dae Collada file inside <code>/assets/obj/</code>
      */
