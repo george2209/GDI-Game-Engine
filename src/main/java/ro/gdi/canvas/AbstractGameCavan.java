@@ -71,7 +71,7 @@ public abstract class AbstractGameCavan extends CavanMovements {
     private XYZMaterial iMaterial = null;
 
     //Light part
-    //TODO: don`t like it as Singleton! To be updated.
+    //TODO: don`t like it as Singleton! To be updated as public constructor.
     private TheSun iTheSun = TheSun.getStaticInstance();
 
     //Textures part
