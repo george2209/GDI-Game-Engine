@@ -95,7 +95,7 @@ public class OpenGLProgramFactory {
 
     /**
      * This is the central point for building and retrieving a program for a specific shader type.
-     * @param shaderType see the constant bitwise values inside AbstractGameCavan (i.e. SHADER_ONLY_VERTICES)
+     * @param shaderType see the constant bitwise values inside AbstractGameCanvan (i.e. SHADER_ONLY_VERTICES)
      * @return the existing to be reused or a new program
      */
     public OpenGLProgram getProgramForShader(final int shaderType){

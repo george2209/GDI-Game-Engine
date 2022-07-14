@@ -69,7 +69,7 @@ public class FragmentShaderBuilder extends AbstractShaderBuilder{
      * The code will adjust the ambient color with the light strength factor and build the final
      * ambient light ready to be applied on the object`s surface.
      * TODO: if needed we can also add DiffuseLight as well as SpecularLight similar method(s)
-     * @param shaderType the shader type as it comes from AbstractGameCavan instance.
+     * @param shaderType the shader type as it comes from AbstractGameCanvan instance.
      */
     private FragmentShaderBuilder addAmbientLight(final int shaderType){
         if(BuildConfig.DEBUG){
@@ -117,7 +117,7 @@ public class FragmentShaderBuilder extends AbstractShaderBuilder{
 
     /**
      *
-     * @param shaderType the shader type as it comes from AbstractGameCavan instance.
+     * @param shaderType the shader type as it comes from AbstractGameCanvan instance.
      */
     private FragmentShaderBuilder addDiffuseLight(final int shaderType) {
         if (BuildConfig.DEBUG) {

@@ -7,20 +7,30 @@
 package ro.gdi.canvas.util;
 
 
+import ro.gdi.BuildConfig;
+import ro.gdi.canvas.GameObject;
+
 /**
  * this class is using the Prototype Pattern for storing objects into an array with an known size
  * at the creation time of its instance.
+ * Important!
+ * The data is kept as reference. This means that the array of data lifetime is managed outside this
+ * class.
  */
+@Deprecated
 public class GameObjectArray<T> {
     private T[] iArray = null;
     private int iNextFreeIndex = 0;
 
     /**
      *
-     * @param arr the initial array to be encapsulated here
+     * @param arr the initial array to be encapsulated here. Make sure you manage the life time of
+     *            the array outside of this class. DO NOT pass temporary arrays (i.e. constructed
+     *            inside a method). A good candidate of the <I>arr</I> parameter is a class variable.
      */
-    public void initiateObjectsArray(T[] arr){
-        assert (arr != null);
+    public GameObjectArray(T[] arr){
+        if(BuildConfig.DEBUG)
+            assert (arr != null);
         this.iArray = arr;
     }
 

@@ -51,7 +51,7 @@ import ro.gdi.util.TextureUtils;
  *  *      array_of_float[] {X1,Y1,Z1,,R1,G1,B1,A1,U1,V1 .... Xn,Yn,Zn,Un,Vn};
  *  SHADER_VERTICES_AND_TEXTURE & SHADER_VERTICES_WITH_OWN_COLOR will be used.
  */
-public abstract class AbstractGameCavan extends CavanMovements {
+public abstract class AbstractGameCanvan extends CavanMovements {
 
     private static final byte NO_OF_COORDINATES_PER_VERTEX = 3; //use X,Y,Z
     private static final byte NO_OF_COLORS_PER_VERTEX = 4; //use R,G,B,A
@@ -89,9 +89,6 @@ public abstract class AbstractGameCavan extends CavanMovements {
      * @param drawOrderArr the order of drawing the vertices
      */
     protected void build(final XYZVertex[] arrVertices, final int[] drawOrderArr, final XYZMaterial material){
-        if(BuildConfig.DEBUG && material == null){
-            throw new AssertionError("cannot call build with NULL material. Make sure a material is set!");
-        }
         this.iMaterial = material;
         this.calculateShaderType(arrVertices[0]);
         this.iProgram = OpenGLProgramFactory.getInstance().getProgramForShader(this.iShaderType);
@@ -100,13 +97,19 @@ public abstract class AbstractGameCavan extends CavanMovements {
         this.buildUniforms();
     }
 
+    protected void build(final XYZVertex[] arrVertices, final int[] drawOrderArr){
+        build(arrVertices, drawOrderArr, null);
+    }
+
     /**
      * initialize the uniforms
      */
     private void buildUniforms(){
         this.iProgram.iModelMatrixHandle = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_theModelMatrix);
         DebugUtils.checkPrintGLError();
-        this.iProgram.iModelTransInvHandle = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_theModelTransInvMatrix);
+        if((this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_NORMALS) != 0) {
+            this.iProgram.iModelTransInvHandle = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_theModelTransInvMatrix);
+        }
         DebugUtils.checkPrintGLError();
         this.iProgram.iViewMatrixHandle = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_theViewMatrix);
         DebugUtils.checkPrintGLError();
@@ -260,16 +263,15 @@ public abstract class AbstractGameCavan extends CavanMovements {
             }
 
             //add the normals
-            if(BuildConfig.DEBUG && !arrVertices[i].getNormal().isPresent()){
-                throw new UnsupportedOperationException("normals must be present!");
-                //TODO: remove the needs for normals and make them into the shaders also optional
+            if((this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_NORMALS) != 0) {
+
+                arrBufferVertices[vertexStride * i + dynamicStride] = arrVertices[i].getNormal().get().x();
+                dynamicStride++;
+                arrBufferVertices[vertexStride * i + dynamicStride] = arrVertices[i].getNormal().get().y();
+                dynamicStride++;
+                arrBufferVertices[vertexStride * i + dynamicStride] = arrVertices[i].getNormal().get().z();
+                dynamicStride++;
             }
-            arrBufferVertices[vertexStride * i + dynamicStride] = arrVertices[i].getNormal().get().x();
-            dynamicStride++;
-            arrBufferVertices[vertexStride * i + dynamicStride] = arrVertices[i].getNormal().get().y();
-            dynamicStride++;
-            arrBufferVertices[vertexStride * i + dynamicStride] = arrVertices[i].getNormal().get().z();
-            //dynamicStride++;
         }
         vertexBuffer.put(arrBufferVertices);
         // set the buffer to read the first coordinate
@@ -286,25 +288,27 @@ public abstract class AbstractGameCavan extends CavanMovements {
         this.iOpenGL3Buffers.startBuildBuffers(
                 vertexBuffer.capacity() * (Float.BYTES), vertexBuffer,
                 GLES30.GL_STATIC_DRAW, this.iProgram.iVerticesHandle,
-                AbstractGameCavan.NO_OF_COORDINATES_PER_VERTEX,
+                AbstractGameCanvan.NO_OF_COORDINATES_PER_VERTEX,
                 GLES30.GL_FLOAT, false,this.iShaderStride, VERTICES_OFFSET);
 
         if((this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_OWN_COLOR) != 0){
             this.iOpenGL3Buffers.addBuildVDOBuffer(this.iProgram.iDiffuseColorPtr,
-                    AbstractGameCavan.NO_OF_COLORS_PER_VERTEX, this.iShaderStride,
+                    AbstractGameCanvan.NO_OF_COLORS_PER_VERTEX, this.iShaderStride,
                     COLOR_OFFSET);
         }
 
         if((this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_UV_DATA_MATERIAL) != 0) {
             this.iOpenGL3Buffers.addBuildVDOBuffer(this.iProgram.iUVTextureHandle,
-                    AbstractGameCavan.NO_OF_TEXTURES_PER_VERTEX, this.iShaderStride,
+                    AbstractGameCanvan.NO_OF_TEXTURES_PER_VERTEX, this.iShaderStride,
                     TEXTURE_OFFSET);
         }
 
         //set the normals
-        this.iOpenGL3Buffers.addBuildVDOBuffer(this.iProgram.iNormalHandle,
-                AbstractGameCavan.NO_OF_NORMAL_COORDINATES_PER_VERTEX, this.iShaderStride,
-                NORMAL_OFFSET);
+        if((this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_NORMALS) != 0) {
+            this.iOpenGL3Buffers.addBuildVDOBuffer(this.iProgram.iNormalHandle,
+                    AbstractGameCanvan.NO_OF_NORMAL_COORDINATES_PER_VERTEX, this.iShaderStride,
+                    NORMAL_OFFSET);
+        }
 
 
         this.iOpenGL3Buffers.finishBuildBuffers();
@@ -336,8 +340,6 @@ public abstract class AbstractGameCavan extends CavanMovements {
             COLOR_OFFSET = offset;
             offset += (Float.BYTES) * NO_OF_COLORS_PER_VERTEX;
 
-        } else if (this.iMaterial.iDiffuseMaterialColor != null) {
-            this.iShaderType |= OpenGLProgramFactory.SHADER_VERTICES_WITH_GLOBAL_DIFFUSE_COLOR;
         }
 
         //U,V
@@ -362,6 +364,7 @@ public abstract class AbstractGameCavan extends CavanMovements {
 
 
         //material properties
+        if(this.iMaterial != null)
         {
             //Ambient texture
             if(this.iMaterial.iAmbientFileNameID != OpenGLUtils.INVALID_UNSIGNED_VALUE){
@@ -370,6 +373,10 @@ public abstract class AbstractGameCavan extends CavanMovements {
             //Diffuse texture
             if(this.iMaterial.iDiffuseFileNameID != OpenGLUtils.INVALID_UNSIGNED_VALUE){
                 this.iShaderType |= OpenGLProgramFactory.SHADER_VERTICES_WITH_DIFFUSE_TEXTURE;
+            } else if (this.iMaterial.iDiffuseMaterialColor != null) {
+                this.iShaderType |= OpenGLProgramFactory.SHADER_VERTICES_WITH_GLOBAL_DIFFUSE_COLOR;
+            } else if(BuildConfig.DEBUG){
+                throw new AssertionError("no diffuse color or Texture defined??");
             }
 
             if(BuildConfig.DEBUG){
@@ -382,6 +389,11 @@ public abstract class AbstractGameCavan extends CavanMovements {
                     System.out.println("fatal error: U,V data is defined but there is no material to be applied on!");
                 }
             }
+        } else if(BuildConfig.DEBUG && (this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_OWN_COLOR) == 0){
+            throw new AssertionError("color information must be present either inside the" +
+                    "vertex array 'per vertex' OR inside a Material.\r\n" +
+                    "This information is missing and your material is also Null."
+            );
         }
 
         this.iShaderStride =  vertexStride * (Float.BYTES);
@@ -428,8 +440,10 @@ public abstract class AbstractGameCavan extends CavanMovements {
         //set matrices
         GLES30.glUniformMatrix4fv(this.iProgram.iModelMatrixHandle, 1, false, super.getModelMatrix(), 0);
         DebugUtils.checkPrintGLError();
-        GLES30.glUniformMatrix4fv(this.iProgram.iModelTransInvHandle, 1, false, super.getModelTransInvMatrixMatrix(), 0);
-        DebugUtils.checkPrintGLError();
+        if((this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_NORMALS) != 0) {
+            GLES30.glUniformMatrix4fv(this.iProgram.iModelTransInvHandle, 1, false, super.getModelTransInvMatrixMatrix(), 0);
+            DebugUtils.checkPrintGLError();
+        }
         GLES30.glUniformMatrix4fv(this.iProgram.iViewMatrixHandle, 1, false, viewMatrix, 0);
         DebugUtils.checkPrintGLError();
         GLES30.glUniformMatrix4fv(this.iProgram.iProjectionMatrixHandle, 1, false, projectionMatrix, 0);

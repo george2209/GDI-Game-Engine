@@ -6,18 +6,50 @@
 
 package ro.gdi.canvas;
 
-import ro.gdi.canvas.util.GameObjectArray;
+import java.util.ArrayList;
 
-public class GameObject extends GameObjectArray<GameObjectComponent> {
-    protected final String iObjName;
+public class GameObject implements GameObjectInterface{
+    private final String iObjName;
+    private final GameObjectComponent[] iComponents;
+    private final int SIZE;
+    private int iInsertionPointer = -1;
+
 
     /**
      *
-     * @param objName the name of this object. Not sure if it has any practicability in production
+     * @param objName the name of this object.
      */
-    public GameObject(final String objName) {
+    public GameObject(final String objName, final int noOfChild) {
         this.iObjName = objName;
+        this.SIZE = noOfChild;
+        if(noOfChild > 0)
+            this.iComponents = new GameObjectComponent[noOfChild];
+        else
+            this.iComponents = null;
     }
+
+    /**
+     * adds a component into the game object.
+     * @param component the component (part of the object) that shall be added.
+     *                  see "ProjectDocumentation" inside docs for more information
+     */
+    public void addComponent(final GameObjectComponent component){
+        this.iComponents[++iInsertionPointer] = component;
+    }
+
+    /**
+     * used by importer from Blender..
+     * TODO: get rid of this method.
+     * @return the last inserted component
+     */
+    public GameObjectComponent getLastComponent(){
+        return this.iComponents[iInsertionPointer];
+    }
+
+    public boolean isFull(){
+        return this.SIZE == this.iInsertionPointer + 1;
+    }
+
 
     /**
      * @return the name of the object as it comes from Blender or as it was set at the initialize
@@ -33,30 +65,33 @@ public class GameObject extends GameObjectArray<GameObjectComponent> {
      * @param projectionMatrix the projection matrix
      */
     public void draw(float[] viewMatrix, float[] projectionMatrix) {
-        for(int i=0; i<super.size(); i++)
-        {
-            super.getComponentAt(i).draw(viewMatrix, projectionMatrix);
+        if(this.iComponents !=null){
+            for (GameObjectComponent c:iComponents) {
+                c.draw(viewMatrix, projectionMatrix);
+            }
         }
 
     }
 
     /**
-     * call this method on the OpenGL thread to restore the objects
+     * from GameObjectInterface
+     */
+    public void onDestroy() {
+        if(this.iComponents !=null){
+            for (GameObjectComponent c:iComponents) {
+                c.onDestroy();
+            }
+        }
+    }
+
+    /**
+     * from GameObjectInterface
      */
     public void onRestore() {
-        for(int i=0; i<super.size(); i++)
-        {
-            super.getComponentAt(i).onRestore();
-        }
-    }
-
-    /**
-     * call this method on the OpenGL thread to restore the objects
-     */
-    public void destroy(){
-        for(int i=0; i<super.size(); i++)
-        {
-            super.getComponentAt(i).destroy();
+        if(this.iComponents !=null){
+            for (GameObjectComponent c:iComponents) {
+                c.onRestore();
+            }
         }
     }
 }

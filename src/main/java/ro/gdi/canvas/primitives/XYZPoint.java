@@ -8,10 +8,10 @@ package ro.gdi.canvas.primitives;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import ro.gdi.canvas.AbstractGameCavan;
+import ro.gdi.canvas.AbstractGameCanvan;
 import ro.gdi.geometry.XYZVertex;
 
-public class XYZPoint extends AbstractGameCavan {
+public class XYZPoint extends AbstractGameCanvan {
 
     private XYZVertex iCoordinate;
 

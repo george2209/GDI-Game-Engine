@@ -8,7 +8,7 @@ package ro.gdi.canvas.primitives;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import ro.gdi.canvas.AbstractGameCavan;
+import ro.gdi.canvas.AbstractGameCanvan;
 import ro.gdi.geometry.XYZColor;
 import ro.gdi.geometry.XYZCoordinate;
 import ro.gdi.geometry.XYZMaterial;
@@ -19,7 +19,7 @@ import ro.gdi.util.MathGL.MathGLUtils;
  * A class that encapsulate the primitive triangle.
  * The order of building the triangle is: counterclockwise order
  */
-public class Triangle extends AbstractGameCavan
+public class Triangle extends AbstractGameCanvan
 {
     //private final XYZMaterial iMaterial = new XYZMaterial();
 

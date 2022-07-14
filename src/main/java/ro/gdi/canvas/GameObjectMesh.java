@@ -11,7 +11,7 @@ import ro.gdi.geometry.XYZVertex;
 
 /**
  * the reason behind this class is to have a collection of meshes inside each object that extends
- * AbstractGameCavan that will contain <i>separated by material</i> each characteristics for a
+ * AbstractGameCanvan that will contain <i>separated by material</i> each characteristics for a
  * part of a graphical object that has an unique material attached.
  * Often we have a graphical object having more sub-parts, each sub-part with its own material.
  * Imagine a tank that has a turret that has its own material distinct from the tank main body.
@@ -23,7 +23,7 @@ import ro.gdi.geometry.XYZVertex;
  * own unique material.
  * 2. To be able to manipulate parts of the objects in a separate way from the <i>main body</i>.
  */
-public class GameCavanMesh extends AbstractGameCavan{
+public class GameObjectMesh extends AbstractGameCanvan {
     private final XYZVertex[] iVerticesArray;
     private final int[] iIndexDrawOrder;
     private final int GL_FORM_TYPE;
@@ -37,33 +37,46 @@ public class GameCavanMesh extends AbstractGameCavan{
      * @param material the material used for this mesh
      * @param glFormType a GL_* type. Example: GLES30.GL_TRIANGLES
      */
-    public GameCavanMesh(final XYZVertex[] verticesArray,
-                         final int[] indexDrawOrder,
-                         final XYZMaterial material,
-                         final int glFormType){
+    public GameObjectMesh(final XYZVertex[] verticesArray,
+                          final int[] indexDrawOrder,
+                          final XYZMaterial material,
+                          final int glFormType){
         this.iMaterial = material;
         this.iVerticesArray = verticesArray;
         this.iIndexDrawOrder = indexDrawOrder;
         this.GL_FORM_TYPE = glFormType;
+        super.build(verticesArray, indexDrawOrder, material);
     }
 
     /**
-     * Because this object is created not on the main OpenGL thread but in the background
-     * we cannot build it as the "build" operation requires to be done inside the  OpenGL thread.
-     * This means that this method must be called before the first draw operation. The call must be
-     * done inside the OpenGL thread.
+     *
+     * @param verticesArray the vertices array
+     * @param indexDrawOrder the draw order array
+     * @param glFormType a GL_* type. Example: GLES30.GL_TRIANGLES
      */
-    public void build(){
-        this.onRestore();
+    public GameObjectMesh(final XYZVertex[] verticesArray,
+                          final int[] indexDrawOrder,
+                          final int glFormType){
+        this(verticesArray, indexDrawOrder,null, glFormType);
     }
 
-    public XYZVertex[] getVerticesArray() {
-        return iVerticesArray;
-    }
+//    /**
+//     * Because this object is created not on the main OpenGL thread but in the background
+//     * we cannot build it as the "build" operation requires to be done inside the  OpenGL thread.
+//     * This means that this method must be called before the first draw operation. The call must be
+//     * done inside the OpenGL thread.
+//     */
+//    public void build(){
+//        this.onRestore();
+//    }
 
-    public int[] getIndexDrawOrder() {
-        return iIndexDrawOrder;
-    }
+//    public XYZVertex[] getVerticesArray() {
+//        return iVerticesArray;
+//    }
+//
+//    public int[] getIndexDrawOrder() {
+//        return iIndexDrawOrder;
+//    }
 
     /**
      *

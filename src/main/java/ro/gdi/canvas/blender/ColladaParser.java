@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
-import ro.gdi.canvas.GameCavanMesh;
+import ro.gdi.canvas.GameObjectMesh;
 import ro.gdi.canvas.GameObject;
 import ro.gdi.canvas.GameObjectComponent;
 import ro.gdi.canvas.blender.collada.ColladaFileObjectDescriptor;
@@ -41,6 +41,8 @@ public class ColladaParser extends AbstractObjParser{
     private int iVerticesProperties = OpenGLProgramFactory.SHADER_UNDEFINED;
     private int iVertexStride = OpenGLUtils.INVALID_UNSIGNED_VALUE;
     private final short TEMP_BUFF_SIZE = 4096;
+    private String iTemporaryNameString = "";
+
 
     public ColladaParser(Context context) {
         super(context);
@@ -94,7 +96,7 @@ public class ColladaParser extends AbstractObjParser{
             @Override
             public boolean preloadData() {
                 try {
-                    iGameObjects[iGameObjectsIndex] = new GameObject(iColladaArray[iGameObjectsIndex].objectName);
+                    //iGameObjects[iGameObjectsIndex] = new GameObject(iColladaArray[iGameObjectsIndex].objectName);
                     iInputStream = new BufferedInputStream(
                             iContext.getAssets().open("obj/" + iColladaArray[iGameObjectsIndex].fileName));
                     iSTATUS_ENGINE = PARSER_ENGINE_START;
@@ -180,28 +182,23 @@ public class ColladaParser extends AbstractObjParser{
             case PARSER_ENGINE_MATERIAL_FINISHED:
             {
                 //no of components
-                this.iGameObjects[iGameObjectsIndex].initiateObjectsArray(
-                        new GameObjectComponent[super.getByteArrayAsInt(inputStream)]
-                );
+                iGameObjects[iGameObjectsIndex] = new GameObject(
+                        iColladaArray[iGameObjectsIndex].objectName,
+                        super.getByteArrayAsInt(inputStream));
                 super.iSTATUS_ENGINE = PARSER_ENGINE_COMPONENT_NAME;
             } break;
             case PARSER_ENGINE_COMPONENT_NAME:
             {
+
                 final short nameSize = super.getByteArrayAsShort(inputStream);
-                this.iGameObjects[iGameObjectsIndex].addGameObjectComponent(
-                        new GameObjectComponent(
-                                super.getByteArrayAsString(
-                                        inputStream, StandardCharsets.US_ASCII,nameSize
-                                )
-                        )
-                );
+                this.iTemporaryNameString = super.getByteArrayAsString(
+                        inputStream, StandardCharsets.US_ASCII,nameSize);
                 super.iSTATUS_ENGINE = PARSER_ENGINE_COMPONENT_MESHES_NO;
             } break;
             case PARSER_ENGINE_COMPONENT_MESHES_NO:{
                 final int meshesNo = super.getByteArrayAsInt(inputStream);
-                final GameObjectComponent component = this.iGameObjects[iGameObjectsIndex].
-                        getLastComponent();
-                component.initiateObjectsArray(new GameCavanMesh[meshesNo]);
+                this.iGameObjects[iGameObjectsIndex].addComponent(
+                        new GameObjectComponent( this.iTemporaryNameString, meshesNo));
                 this.iMeshParser.reset();
                 super.iSTATUS_ENGINE = PARSER_ENGINE_MESH_MATERIAL_ID;
             } break;
@@ -276,7 +273,7 @@ public class ColladaParser extends AbstractObjParser{
                 if(this.iMeshParser.iIndexDrawOrderIndex == this.iMeshParser.iIndexDrawOrder.length){
                     final GameObjectComponent component = this.iGameObjects[iGameObjectsIndex].
                             getLastComponent();
-                    component.addGameObjectComponent(new GameCavanMesh(
+                    component.addMesh(new GameObjectMesh(
                             this.iMeshParser.iVerticesArray,
                             this.iMeshParser.iIndexDrawOrder,
                             this.iMeshParser.iMaterial, this.iMeshParser.GL_FORM_TYPE));

@@ -8,14 +8,14 @@ package ro.gdi.canvas.primitives;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import ro.gdi.canvas.AbstractGameCavan;
+import ro.gdi.canvas.AbstractGameCanvan;
 import ro.gdi.geometry.XYZColor;
 import ro.gdi.geometry.XYZCoordinate;
 import ro.gdi.geometry.XYZMaterial;
 import ro.gdi.geometry.XYZVertex;
 import ro.gdi.util.MathGL.MathGLUtils;
 
-public class XYZAxis extends AbstractGameCavan {
+public class XYZAxis extends AbstractGameCanvan {
 
 
     public XYZAxis(){

@@ -46,6 +46,11 @@ public class XYZVertex {
         this.normal = normal;
     }
 
+    public XYZVertex(final XYZCoordinate coordinate, final XYZColor vertexColor){
+        this.coordinate = coordinate;
+        this.vertexColor = vertexColor;
+    }
+
     public XYZVertex(final XYZCoordinate coordinate, final XYZCoordinate normal, final XYZTextureUV uvTexture){
         this.coordinate = coordinate;
         this.normal = normal;

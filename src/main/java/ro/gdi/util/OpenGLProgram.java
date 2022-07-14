@@ -59,8 +59,10 @@ public class OpenGLProgram {
         //MAIN SHADER ATTRIBUTES///////////////
         iModelMatrixHandle = attributeIndex++;
         GLES20.glBindAttribLocation(iProgramHandlePtr, iModelMatrixHandle, OpenGLProgramFactory.SHADER_VARIABLE_theModelMatrix);
-        iModelTransInvHandle = attributeIndex++;
-        GLES20.glBindAttribLocation(iProgramHandlePtr, iModelTransInvHandle, OpenGLProgramFactory.SHADER_VARIABLE_theModelTransInvMatrix);
+        if((shaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_NORMALS) != 0) {
+            iModelTransInvHandle = attributeIndex++;
+            GLES20.glBindAttribLocation(iProgramHandlePtr, iModelTransInvHandle, OpenGLProgramFactory.SHADER_VARIABLE_theModelTransInvMatrix);
+        }
         iViewMatrixHandle = attributeIndex++;
         GLES20.glBindAttribLocation(iProgramHandlePtr, iViewMatrixHandle, OpenGLProgramFactory.SHADER_VARIABLE_theViewMatrix);
         iProjectionMatrixHandle = attributeIndex++;
@@ -74,8 +76,10 @@ public class OpenGLProgram {
         }
 
         //set the normals
-        iNormalHandle = attributeIndex++;
-        GLES20.glBindAttribLocation(iProgramHandlePtr, iNormalHandle, OpenGLProgramFactory.SHADER_VARIABLE_aNormal);
+        if((shaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_NORMALS) != 0) {
+            iNormalHandle = attributeIndex++;
+            GLES20.glBindAttribLocation(iProgramHandlePtr, iNormalHandle, OpenGLProgramFactory.SHADER_VARIABLE_aNormal);
+        }
 
 
         //FRAGMENT SHADER ATTRIBUTES///////////////
@@ -92,6 +96,9 @@ public class OpenGLProgram {
             this.iUVTextureHandle = attributeIndex++;
             GLES20.glBindAttribLocation(iProgramHandlePtr, this.iUVTextureHandle, OpenGLProgramFactory.SHADER_VARIABLE_aUVTexture);
         }
+
+        //check the binders health
+        DebugUtils.checkPrintGLError();
 
         // creates OpenGL ES program executables
         GLES20.glLinkProgram(iProgramHandlePtr);

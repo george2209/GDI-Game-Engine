@@ -93,4 +93,11 @@ public class XYZCoordinate {
         return this;
     }
 
+    @Override
+    public String toString(){
+        return ("x=" + this.iCoordinateArray[0] +
+                " y=" + this.iCoordinateArray[1] +
+                " z=" + this.iCoordinateArray[2]);
+    }
+
 }

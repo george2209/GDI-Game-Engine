@@ -6,7 +6,7 @@
 
 package ro.gdi.canvas.primitives;
 
-public class Line //extends AbstractGameCavan
+public class Line //extends AbstractGameCanvan
 {
 
 //    private XYZVertex iStart = null;

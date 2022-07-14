@@ -76,7 +76,7 @@ public class OpenGLBufferArray3 {
     /**
      *
      * @param colorPointer the shader color pointerID
-     * @param noColorsPerVertex normally is 4 (see AbstractGameCavan.NO_OF_COLORS_PER_VERTEX)
+     * @param noColorsPerVertex normally is 4 (see AbstractGameCanvan.NO_OF_COLORS_PER_VERTEX)
      * @param shaderStride
      * @param offset the offset of the color inside the vertex buffer
      * @return

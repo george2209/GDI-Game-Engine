@@ -6,10 +6,15 @@
 
 package ro.gdi.canvas;
 
+import java.util.ArrayList;
+
 import ro.gdi.canvas.util.GameObjectArray;
 
-public class GameObjectComponent extends GameObjectArray<GameCavanMesh> {
+public class GameObjectComponent implements GameObjectInterface{
     private final String iName;
+    private final GameObjectMesh[] iMeshes;
+    private final int SIZE;
+    private int iInsertionPointer = -1;
 
     /**
      *
@@ -18,14 +23,39 @@ public class GameObjectComponent extends GameObjectArray<GameCavanMesh> {
      *             identify and locate it if you want to apply movements / rotation / animations for
      *             a certain component of a game object.
      */
-    public GameObjectComponent(final String name) {
+    public GameObjectComponent(final String name, final int noOfMeshes) {
         this.iName = name;
+        this.SIZE = noOfMeshes;
+        if(noOfMeshes > 0)
+            this.iMeshes = new GameObjectMesh[noOfMeshes];
+        else
+            this.iMeshes = null;
+    }
+
+    /**
+     * adds a new mesh to this component
+     * @param mesh
+     */
+    public void addMesh(final GameObjectMesh mesh){
+        this.iMeshes[++iInsertionPointer] = mesh;
+    }
+
+    public boolean isFull(){
+        return this.SIZE == this.iInsertionPointer + 1;
+    }
+
+    /**
+     *
+     * @return the last inserted component
+     */
+    public GameObjectMesh getLastComponent(){
+        return this.iMeshes[iInsertionPointer];
     }
 
 
     public void draw(float[] viewMatrix, float[] projectionMatrix) {
-        for(int i=0; i<super.size(); i++){
-            GameCavanMesh m = super.getComponentAt(i);
+        if(this.iMeshes != null)
+            for (GameObjectMesh m:this.iMeshes) {
 //            {
 //                //rotate it every 10 seconds
 //                long time = SystemClock.uptimeMillis() % 10000L;
@@ -37,17 +67,17 @@ public class GameObjectComponent extends GameObjectArray<GameCavanMesh> {
         }
     }
 
-    public void onRestore() {
-        for(int i=0; i<super.size(); i++){
-            GameCavanMesh m = super.getComponentAt(i);
-            m.onRestore();
-        }
+    public void onDestroy() {
+        if(this.iMeshes != null)
+            for (GameObjectMesh m:this.iMeshes) {
+                m.destroy();
+            }
     }
 
-    public void destroy(){
-        for(int i=0; i<super.size(); i++){
-            GameCavanMesh m = super.getComponentAt(i);
-            m.destroy();
-        }
+    public void onRestore() {
+        if(this.iMeshes != null)
+            for (GameObjectMesh m:this.iMeshes) {
+                m.onRestore();
+            }
     }
 }
