@@ -56,7 +56,7 @@ public class GameObjectComponent implements GameObjectInterface{
     public void draw(float[] viewMatrix, float[] projectionMatrix) {
         if(this.iMeshes != null)
             for (GameObjectMesh m:this.iMeshes) {
-//            {
+//            { //EXAMPLE:
 //                //rotate it every 10 seconds
 //                long time = SystemClock.uptimeMillis() % 10000L;
 //                float angleInDegrees = (360.0f / 10000.0f) * ((int) time);

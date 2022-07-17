@@ -100,6 +100,59 @@ public class MathGLUtils {
     }
 
     /**
+     * the method is checking if a vector is intersecting a triangle`s surface.
+     * an implementation of the algorithm of Moller-Trumbore
+     * Reference:
+     * https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+     * @param rayOrigin the origin the vector is starting from.
+     * @param rayVector the vector
+     * @param inTriangle an array of three XYZCoordinate coordinates (the three points that forms the triangle)
+     * @param outIntersectionPoint an out instance of the intersection point with the triangle plane
+     * @return true if it intersects the triangle plane
+     */
+    public static boolean isVectorIntersectionWithTriangle(final XYZCoordinate rayOrigin,
+                                                           final XYZCoordinate rayVector,
+                                                           final XYZCoordinate[] inTriangle,
+                                                           final XYZCoordinate outIntersectionPoint) {
+        final double EPSILON = 0.0000001;
+        final XYZCoordinate vertex0 = inTriangle[0].clone();
+        final XYZCoordinate vertex1 = inTriangle[1].clone();
+        final XYZCoordinate vertex2 = inTriangle[2].clone();
+        final XYZCoordinate edge1 = vertex1.clone().subtract(vertex0);
+        final XYZCoordinate edge2 = vertex2.clone().subtract(vertex0);
+        XYZCoordinate h = MathGLUtils.crossProduct(rayVector, edge2);
+        XYZCoordinate s = rayOrigin.clone().subtract(vertex0);
+        XYZCoordinate q = MathGLUtils.crossProduct(s, edge1);
+        float a, f, u, v;
+        a = MathGLUtils.dotProduct(edge1, h);
+        if (a > -EPSILON && a < EPSILON) {
+            return false;    // This ray is parallel to this triangle.
+        }
+        f = 1.0f / a;
+        u = f * (MathGLUtils.dotProduct(s,h));
+        if (u < 0.0 || u > 1.0) {
+            return false;
+        }
+        v = f * MathGLUtils.dotProduct(rayVector, q);
+        if (v < 0.0 || u + v > 1.0) {
+            return false;
+        }
+        // At this stage we can compute t to find out where the intersection point is on the line.
+        float t = f * MathGLUtils.dotProduct(edge2,q);
+        if (t > EPSILON) // ray intersection
+        {
+            XYZCoordinate tmp = rayOrigin.clone().add(Vector.multiplyByValue(rayVector, t));
+            outIntersectionPoint.setX(tmp.x());
+            outIntersectionPoint.setY(tmp.y());
+            outIntersectionPoint.setZ(tmp.z());
+            return true;
+        } else // This means that there is a line intersection but not a ray intersection.
+        {
+            return false;
+        }
+    }
+
+    /**
      * calculates the cross product (NOT dot!) between two points
      * used formula is:
      * | i, j, k    |
@@ -113,9 +166,19 @@ public class MathGLUtils {
      */
     public static XYZCoordinate crossProduct(final XYZCoordinate a, final XYZCoordinate b){
         return new XYZCoordinate(
-                a.y() * b.z() - b.y()*a.z(),
-                a.z()*b.x() - b.z()*a.x(),
-                a.x()*b.y() - b.x()*a.y());
+                a.y() * b.z() - a.z() * b.y(),
+                a.z() * b.x() - b.z() * a.x(), //opposite oder!
+                a.x() * b.y() - a.y() * b.x());
+    }
+
+    /**
+     *
+     * @param a first vector
+     * @param b second vector
+     * @return the algebraical dot product of the two vectors
+     */
+    public static float dotProduct(final XYZCoordinate a, final XYZCoordinate b){
+        return a.x() * b.x() + a.y() * b.y() + a.z()*b.z();
     }
 
     /**

@@ -14,8 +14,8 @@ import java.util.HashMap;
 import ro.gdi.BuildConfig;
 
 public abstract class AbstractWorldScene<T extends AbstractWorldCamera> {
-    private HashMap<String,GameObject> iGameObjects = new HashMap<>();
 
+    private HashMap<String,GameObject> iGameObjects = new HashMap<>();
     private final float NEAR_CAMERA_FIELD;
     private final float FAR_CAMERA_FIELD;
     private final float[] iProjectionMatrix = new float[16];
@@ -41,7 +41,7 @@ public abstract class AbstractWorldScene<T extends AbstractWorldCamera> {
      *
      * @return the currently used projection matrix
      */
-    protected float[] getProjectionMatrix(){
+    public float[] getProjectionMatrix(){
         return this.iProjectionMatrix;
     }
 
@@ -76,6 +76,14 @@ public abstract class AbstractWorldScene<T extends AbstractWorldCamera> {
         }
 
         this.iGameObjects.put(gameObject.getObjectName(), gameObject);
+    }
+
+    /**
+     * remove a spirit from the world
+     * @param gameObject
+     */
+    public void remove(@NonNull final GameObject gameObject){
+        this.iGameObjects.remove(gameObject.getObjectName());
     }
 
     /**

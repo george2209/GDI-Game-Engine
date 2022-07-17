@@ -93,6 +93,14 @@ public class XYZCoordinate {
         return this;
     }
 
+    /**
+     *
+     * @return a new instance with the same values as the current object
+     */
+    public XYZCoordinate clone(){
+        return new XYZCoordinate(this.iCoordinateArray);
+    }
+
     @Override
     public String toString(){
         return ("x=" + this.iCoordinateArray[0] +

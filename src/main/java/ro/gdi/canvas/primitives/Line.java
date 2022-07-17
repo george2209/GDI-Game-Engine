@@ -6,68 +6,101 @@
 
 package ro.gdi.canvas.primitives;
 
-public class Line //extends AbstractGameCanvan
-{
+import android.opengl.GLES30;
 
-//    private XYZVertex iStart = null;
-//    private XYZVertex iEnd = null;
-//    private boolean iIsDirty = false;
-//
-//    public Line(final XYZVertex start, final XYZVertex end){
-//        super(lineVerticesArr,this.buildIndexes());
-//        this.buildLine(start, end,  new XYZColor(0.0f, 0.5f, 1.0f, 0.5f));
-//    }
-//
-//    public Line(final XYZVertex start, final XYZVertex end, final XYZColor color){
-//        this.buildLine(start, end, color);
-//    }
-//
-//    private void buildLine(final XYZVertex start, final XYZVertex end, final XYZColor color){
-//
-//        final XYZVertex[] lineVerticesArr =  this.buildCoordinates(start, end);
-//        for (int i = 0; i < lineVerticesArr.length ; i++) {
-//            lineVerticesArr[i].color = color;
-//        }
-//
-//
-//
-////        super.compileGLSL(super.getProgramShaderType(lineVerticesArr[0]));
-////        super.buildVertexBuffer(lineVerticesArr);
-////        super.buildDrawOrderBuffer(this.buildIndexes());
-//
-//
-//
-//    }
-//
-//    /**
-//     * update the coordinates of this line.
-//     * TODO: synchronization in case this method is kept permanently.
-//     * @param start
-//     * @param end
-//     */
-//    public void updateCoordinates(final XYZVertex start, final XYZVertex end){
-//        System.out.println("\nupdateCoordinates on line:");
-//        System.out.println("\nstart: x=" + start.coordinate.x() + " y=" + start.coordinate.y() + " z=" + start.coordinate.z());
-//        System.out.println("\nend: x=" + end.coordinate.x() + " y=" + end.coordinate.y() + " z=" + end.coordinate.z());
-//        this.iStart = start;
-//        this.iEnd = end;
-//        this.iIsDirty = true;
-//    }
-//
-//    private XYZVertex[] buildCoordinates(final XYZVertex start, final XYZVertex end){
-//        return new XYZVertex[] {start, end};
-//    }
-//
-//    private short[] buildIndexes(){
-//        return new short[]{0,1};
-//    }
-//
-//    @Override
-//    public void draw(float[] viewMatrix, float[] projectionMatrix) {
-//        if(this.iIsDirty){
-//            super.buildVertexBuffer(this.buildCoordinates(iStart, iEnd));
-//            this.iIsDirty = false;
-//        }
-//        super.doDraw(viewMatrix, projectionMatrix, GL10.GL_LINES);
-//    }
+import ro.gdi.canvas.GameObject;
+import ro.gdi.canvas.GameObjectComponent;
+import ro.gdi.canvas.GameObjectMesh;
+import ro.gdi.geometry.XYZColor;
+import ro.gdi.geometry.XYZCoordinate;
+import ro.gdi.geometry.XYZVertex;
+
+public class Line extends GameObject
+{
+    private static class LineComponent extends GameObjectComponent {
+        private final LineMesh iLineMesh;
+        public LineComponent(final XYZCoordinate start, final XYZCoordinate end, final XYZColor color) {
+            super("line component", 1);
+            final XYZVertex[] verticesArray = new XYZVertex[2];
+            verticesArray[0] = new XYZVertex(start, color);
+            verticesArray[1] = new XYZVertex(end, color);
+            iLineMesh = new LineMesh(verticesArray, new int[] {0,1}, GLES30.GL_LINES);
+            super.addMesh(iLineMesh);
+        }
+
+        public void refreshCoordinates(final XYZCoordinate start, final XYZCoordinate end, final XYZColor color){
+            final XYZVertex[] verticesArray = new XYZVertex[2];
+            verticesArray[0] = new XYZVertex(start, color);
+            verticesArray[1] = new XYZVertex(end, color);
+            this.iLineMesh.refreshCoordinates(verticesArray);
+        }
+    }
+
+    private static class LineMesh extends GameObjectMesh {
+        public LineMesh(XYZVertex[] verticesArray, int[] indexDrawOrder, int glFormType) {
+            super(verticesArray, indexDrawOrder, glFormType);
+        }
+
+        public void refreshCoordinates(final XYZVertex[] verticesArray){
+            super.buildVertexBuffer(verticesArray);
+        }
+    }
+
+    private final XYZCoordinate iStart;
+    private final XYZCoordinate iEnd;
+    private final XYZColor iColor;
+    private final LineComponent iLineComponent;
+    private boolean iIsLineVisible = false;
+    private boolean iIsLineDirty = false;
+
+    /**
+     *
+     * @param start
+     * @param end
+     */
+    public Line(final XYZCoordinate start, final XYZCoordinate end) {
+        this(start, end, new XYZColor(0.5f, 0.1f, 0.1f, XYZColor.OPAQUE));
+    }
+
+    /**
+     *
+     * @param start
+     * @param end
+     * @param color
+     */
+    public Line(final XYZCoordinate start, final XYZCoordinate end, final XYZColor color) {
+        super("line", 1);
+        this.iStart = start;
+        this.iEnd = end;
+        this.iColor = color;
+        this.iLineComponent = new LineComponent(this.iStart, this.iEnd, this.iColor);
+        super.addComponent(this.iLineComponent);
+    }
+
+    public void setVisible(final boolean isVisible){
+        this.iIsLineVisible = isVisible;
+    }
+
+    public void updateCoordinates(final XYZCoordinate start, final XYZCoordinate end){
+        this.iStart.setX(start.x());
+        this.iStart.setY(start.y());
+        this.iStart.setZ(start.z());
+
+        this.iEnd.setX(end.x());
+        this.iEnd.setY(end.y());
+        this.iEnd.setZ(end.z());
+
+        iIsLineDirty = true;
+    }
+
+    @Override
+    public void draw(float[] viewMatrix, float[] projectionMatrix) {
+        if(this.iIsLineVisible) {
+            if(iIsLineDirty){
+                this.iIsLineDirty = false;
+                this.iLineComponent.refreshCoordinates(this.iStart, this.iEnd, this.iColor);
+            }
+            super.draw(viewMatrix, projectionMatrix);
+        }
+    }
 }

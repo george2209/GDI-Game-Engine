@@ -66,4 +66,13 @@ public class Vector {
         return res;
     }
 
+    /**
+     * @param vector
+     * @param val
+     * @return a new arrays having the results (V x val)
+     */
+    public static XYZCoordinate multiplyByValue(final XYZCoordinate vector, final float val) {
+        return new XYZCoordinate(multiplyByValue(vector.asArray(), val));
+    }
+
 }

@@ -102,42 +102,46 @@ public abstract class AbstractGameCanvan extends CavanMovements {
     }
 
     /**
+     *
+     * @param handle
+     * @param variableName
+     * @return a valid handle if the original handle was not yet assigned.
+     */
+    private int getUniform(int handle, final String variableName){
+        //if(handle == OpenGLUtils.INVALID_UNSIGNED_VALUE) {
+            handle = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, variableName);
+            DebugUtils.checkPrintGLError();
+        //}
+        return handle;
+    }
+
+    /**
      * initialize the uniforms
      */
     private void buildUniforms(){
-        this.iProgram.iModelMatrixHandle = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_theModelMatrix);
-        DebugUtils.checkPrintGLError();
-        if((this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_NORMALS) != 0) {
-            this.iProgram.iModelTransInvHandle = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_theModelTransInvMatrix);
-        }
-        DebugUtils.checkPrintGLError();
-        this.iProgram.iViewMatrixHandle = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_theViewMatrix);
-        DebugUtils.checkPrintGLError();
-        this.iProgram.iProjectionMatrixHandle = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_theProjectionMatrix);
-        DebugUtils.checkPrintGLError();
 
+        this.iProgram.iModelMatrixHandle = this.getUniform( this.iProgram.iModelMatrixHandle, OpenGLProgramFactory.SHADER_VARIABLE_theModelMatrix);
+        if((this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_NORMALS) != 0) {
+            this.iProgram.iModelTransInvHandle = this.getUniform( this.iProgram.iModelTransInvHandle, OpenGLProgramFactory.SHADER_VARIABLE_theModelTransInvMatrix);
+        }
+        this.iProgram.iViewMatrixHandle = this.getUniform(this.iProgram.iViewMatrixHandle, OpenGLProgramFactory.SHADER_VARIABLE_theViewMatrix);
+        this.iProgram.iProjectionMatrixHandle = this.getUniform(this.iProgram.iProjectionMatrixHandle, OpenGLProgramFactory.SHADER_VARIABLE_theProjectionMatrix);
 
         //the lightning
-        this.iProgram.iAmbientLightStrengtPtr = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_ambientLightStrength);
-        DebugUtils.checkPrintGLError();
-        this.iProgram.iAmbientLightColorPtr = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_ambientLightColor);
-        DebugUtils.checkPrintGLError();
-        this.iProgram.iDiffuseLightColorPtr = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_diffuseLightColor);
-        DebugUtils.checkPrintGLError();
-        this.iProgram.iDiffuseDirectionPtr = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_diffuseLightDirection);
-        DebugUtils.checkPrintGLError();
+        this.iProgram.iAmbientLightStrengtPtr = this.getUniform(this.iProgram.iAmbientLightStrengtPtr, OpenGLProgramFactory.SHADER_VARIABLE_ambientLightStrength);
+        this.iProgram.iAmbientLightColorPtr = this.getUniform(this.iProgram.iAmbientLightColorPtr, OpenGLProgramFactory.SHADER_VARIABLE_ambientLightColor);
+        this.iProgram.iDiffuseLightColorPtr = this.getUniform(this.iProgram.iDiffuseLightColorPtr, OpenGLProgramFactory.SHADER_VARIABLE_diffuseLightColor);
+        this.iProgram.iDiffuseDirectionPtr = this.getUniform(this.iProgram.iDiffuseDirectionPtr, OpenGLProgramFactory.SHADER_VARIABLE_diffuseLightDirection);
 
         //texture or background color
         if((this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_AMBIENT_TEXTURE) != 0){
-            this.iProgram.iAmbientTexturePtr = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_ambientTexture);
-            DebugUtils.checkPrintGLError();
+            this.iProgram.iAmbientTexturePtr = this.getUniform(this.iProgram.iAmbientTexturePtr, OpenGLProgramFactory.SHADER_VARIABLE_ambientTexture);
         } else {
             final boolean isColorPerVertex = (this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_OWN_COLOR) > 0;
             final boolean isColorGlobal = (this.iShaderType & OpenGLProgramFactory.SHADER_VERTICES_WITH_GLOBAL_DIFFUSE_COLOR) > 0;
 
             if(isColorGlobal) {
-                this.iProgram.iDiffuseColorPtr = GLES30.glGetUniformLocation(this.iProgram.iProgramHandlePtr, OpenGLProgramFactory.SHADER_VARIABLE_diffuseMaterialColor);
-                DebugUtils.checkPrintGLError();
+                this.iProgram.iDiffuseColorPtr = this.getUniform(this.iProgram.iDiffuseColorPtr, OpenGLProgramFactory.SHADER_VARIABLE_diffuseMaterialColor);
             } else if(!isColorPerVertex && BuildConfig.DEBUG)
                 throw new AssertionError("unknown color setting! No color??");
         }
