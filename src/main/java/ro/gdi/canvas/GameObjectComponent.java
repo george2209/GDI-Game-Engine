@@ -40,6 +40,16 @@ public class GameObjectComponent implements GameObjectInterface{
         this.iMeshes[++iInsertionPointer] = mesh;
     }
 
+    /**
+     *
+     * @param index that must be within the range of this object meshes
+     * @return the mesh at the specific index
+     */
+    public GameObjectMesh getMesh(final int index){
+        assert (index >= 0 && index <=iInsertionPointer);
+        return this.iMeshes[index];
+    }
+
     public boolean isFull(){
         return this.SIZE == this.iInsertionPointer + 1;
     }

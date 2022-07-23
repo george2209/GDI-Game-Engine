@@ -28,6 +28,7 @@ public class GameObjectMesh extends AbstractGameCanvan {
     private final int[] iIndexDrawOrder;
     private final int GL_FORM_TYPE;
     private final XYZMaterial iMaterial;
+    private boolean iIsDirty = false;
 
 
     /**
@@ -60,23 +61,27 @@ public class GameObjectMesh extends AbstractGameCanvan {
         this(verticesArray, indexDrawOrder,null, glFormType);
     }
 
-//    /**
-//     * Because this object is created not on the main OpenGL thread but in the background
-//     * we cannot build it as the "build" operation requires to be done inside the  OpenGL thread.
-//     * This means that this method must be called before the first draw operation. The call must be
-//     * done inside the OpenGL thread.
-//     */
-//    public void build(){
-//        this.onRestore();
-//    }
+    /**
+     *
+     * @return the number of vertices this mesh contains
+     */
+    public int getVerticesSize(){
+        return this.iVerticesArray.length;
+    }
 
-//    public XYZVertex[] getVerticesArray() {
-//        return iVerticesArray;
-//    }
-//
-//    public int[] getIndexDrawOrder() {
-//        return iIndexDrawOrder;
-//    }
+    /**
+     *
+     * @param index
+     * @return the instance of the respective vertex
+     */
+    public XYZVertex getVertex(int index){
+        assert (index > -1 && index < this.iVerticesArray.length);
+        return this.iVerticesArray[index];
+    }
+
+    protected void notifyVerticesChanged(){
+        iIsDirty = true;
+    }
 
     /**
      *
@@ -85,6 +90,10 @@ public class GameObjectMesh extends AbstractGameCanvan {
      */
     @Override
     public void draw(float[] viewMatrix, float[] projectionMatrix) {
+        if(this.iIsDirty) {
+            this.iIsDirty = false;
+            super.buildVertexBuffer(this.iVerticesArray);
+        }
         super.doDraw(viewMatrix, projectionMatrix, this.GL_FORM_TYPE);
     }
 
