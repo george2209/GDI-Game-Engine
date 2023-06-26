@@ -5,7 +5,6 @@
   ~ https://github.com/george2209/PlanesAndShips/blob/main/LICENSE
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ro.gdi">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
 </manifest>

@@ -324,8 +324,10 @@ public class TouchScreenProcessor {
      * @param y
      * @param winZ
      * @param viewport
-     * @return a X,Y,Z coordinate that contains the x,y coordinated from screen
-     * translated into world coordinates
+     * @return a X,Y,Z,W coordinate that contains the x,y coordinated from screen
+     * translated into world coordinates.
+     * Note:
+     * W will be always 1 because we are returning a vertex
      */
     private float[] getUnProjectMatrix(float x, float y, float winZ,
                                        int[] viewport,
